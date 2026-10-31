@@ -71,6 +71,9 @@ Every test execution records results in `test_report.csv` at the repository root
 - Every check maps directly to scenario IDs in `scenarios.md` (e.g. `[C1]`, `[B5]`, `[F3]`).
 - `result` is strictly `PASS` or `FAIL`.
 
+> **Comprehensive Check-by-Check Explanation:**  
+> For an exhaustive audit of all 118 collected tests yielding 132 individual checks recorded in `test_report.csv`, see [`automated_test_checks_explained.md`](automated_test_checks_explained.md). It details the input, expected oracle, observed output, quality engineering rationale, and risk mitigation for every single test check.
+
 ---
 
 ## 3. Architecture & Design Principles

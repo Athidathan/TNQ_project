@@ -39,3 +39,8 @@ htmlcov/
 # Microsoft Word temporary lock files
 ~$*.docx
 manuscripts/~$*.docx
+
+# Temporary local runs
+output.csv
+test_report_new.csv
+TNQ_project.zip
