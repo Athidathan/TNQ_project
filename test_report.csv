@@ -1,9 +1,9 @@
 checks,input,expected,actual,result
-[G9] Empty input folder exits 0,C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-3\test_cli_empty_folder0,0,0,PASS
+[G9] Empty input folder exits 0,C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-4\test_cli_empty_folder0,0,0,PASS
 "[H1] Header row is exactly file,received_date",empty folder,"['file', 'received_date']","['file', 'received_date']",PASS
-[G10] Non-existent input folder exits non-zero,C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-3\test_cli_missing_input_folder0\does_not_exist,1,1,PASS
+[G10] Non-existent input folder exits non-zero,C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-4\test_cli_missing_input_folder0\does_not_exist,1,1,PASS
 CLI argument count validation exits 2,1 arg given,2,2,PASS
-"CLI processes corrupt, empty, and valid files with exit code 0",C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-3\test_cli_robustness_corrupt_an0\inputs,0,0,PASS
+"CLI processes corrupt, empty, and valid files with exit code 0",C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-4\test_cli_robustness_corrupt_an0\inputs,0,0,PASS
 [G1] Corrupt file results in INVALID,01_corrupt.docx,INVALID,INVALID,PASS
 [G2] Empty 0-byte file results in INVALID,02_empty.docx,INVALID,INVALID,PASS
 [G3] Empty text docx results in INVALID,03_notext.docx,INVALID,INVALID,PASS
@@ -93,6 +93,15 @@ doc1.docx,2026-01-02
 [E9] E9 multiple conflicting received dates [provisional Q4],Received: 2 Jan 2026 // Received: 15 Feb 2026,INVALID,INVALID,PASS
 [E10] E10 identical date repeated in header and body,Received 2 Jan 2026 | Accepted 10 Apr 2026 // Received: 2 Jan 2026,2026-01-02,2026-01-02,PASS
 [E11] E11 published online and issue date decoys following received,Received: 2 Jan 2026; Published online: 15 May 2026; Issue date: 1 June 2026,2026-01-02,2026-01-02,PASS
+[B5] Received date in footer extracted,footer.docx,2026-01-02,2026-01-02,PASS
+[B7] Received date in text box extracted,textbox.docx,2026-01-02,2026-01-02,PASS
+[B8] Received date in footnote extracted,footnote.docx,2026-01-02,2026-01-02,PASS
+[B11] Tracked insertion accepted and deletion rejected [provisional Q8],tracked.docx,2026-01-02,2026-01-02,PASS
+[B12] Hidden text included [provisional Q8],hidden.docx,2026-01-02,2026-01-02,PASS
+[A9] Label split across multiple text runs is unified,split.docx,2026-01-02,2026-01-02,PASS
+[G7] Subfolders inside input folder are ignored [provisional Q10],nested_subfolder/nested_doc.docx,False,False,PASS
+[G8] Password-protected docx handled gracefully with code 0,C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-4\test_scenario_g8_encrypted_doc0\inputs\encrypted.docx,0,0,PASS
+[G8] Encrypted file produces INVALID,encrypted.docx,INVALID,INVALID,PASS
 [H2] Manuscripts batch run produces exactly 20 rows,manuscripts folder,20,20,PASS
 [Sample merged_01.docx] expected=2026-01-02 (confirmed: Article history: Received: 2 Jan 2026; Revised…; Accepted…),merged_01.docx,2026-01-02,2026-01-02,PASS
 "[Sample merged_02.docx] expected=2026-01-02 (confirmed: bottom of file, italic, full month)",merged_02.docx,2026-01-02,2026-01-02,PASS
