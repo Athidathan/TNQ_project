@@ -1,0 +1,47 @@
+checks,input,expected,actual,result
+[C1] C1 standard abbreviated month,2 Jan 2026,2026-01-02,2026-01-02,PASS
+[C2] C2 full month name,2 January 2026,2026-01-02,2026-01-02,PASS
+[C3] C3 ISO format YYYY-MM-DD,2026-01-02,2026-01-02,2026-01-02,PASS
+[C4] C4 ordinal day with suffix,2nd January 2026,2026-01-02,2026-01-02,PASS
+[C5] C5 US order with comma full month,"January 2, 2026",2026-01-02,2026-01-02,PASS
+[C5] C5 US order with comma short month,"Jan 2, 2026",2026-01-02,2026-01-02,PASS
+[C6] C6 leading zero on day,02 Jan 2026,2026-01-02,2026-01-02,PASS
+[C7] C7 slashed ISO YYYY/MM/DD,2026/01/02,2026-01-02,2026-01-02,PASS
+[C8] C8 dotted ambiguous date [provisional Q1],2.1.2026,INVALID,INVALID,PASS
+[C8] C8 dotted ambiguous zero-padded [provisional Q1],02.01.2026,INVALID,INVALID,PASS
+[C8] C8 dotted unambiguous day > 12,21.12.2026,2026-12-21,2026-12-21,PASS
+[C9] C9 hyphenated ambiguous date [provisional Q1],02-01-2026,INVALID,INVALID,PASS
+[C9] C9 hyphenated with month name,02-Jan-2026,2026-01-02,2026-01-02,PASS
+[C10] C10 month abbreviation with dot,2 Jan. 2026,2026-01-02,2026-01-02,PASS
+[C10] C10 four-letter Sept abbreviation with dot,4th Sept. 2026,2026-09-04,2026-09-04,PASS
+[C11] C11 uppercase month name,2 JANUARY 2026,2026-01-02,2026-01-02,PASS
+[C12] C12 leading weekday with comma,"Friday, 2 January 2026",2026-01-02,2026-01-02,PASS
+[C13] C13 ISO date with ISO time and UTC Z,2026-01-02T10:30:00Z,2026-01-02,2026-01-02,PASS
+[C13] C13 date with time and timezone IST,"2 Jan 2026, 10:30 IST",2026-01-02,2026-01-02,PASS
+[C14] C14 comma after month name,"2 Jan, 2026",2026-01-02,2026-01-02,PASS
+[C15] C15 parentheses wrapped date,(2 Jan 2026),2026-01-02,2026-01-02,PASS
+[C15] C15 square bracket wrapped date,[2 Jan 2026],2026-01-02,2026-01-02,PASS
+[C16] C16 French month name [provisional Q9],2 janvier 2026,INVALID,INVALID,PASS
+[C17] C17 valid leap day in leap year,29 February 2028,2028-02-29,2028-02-29,PASS
+[D1] D1 slash ambiguous date [provisional Q1],03/04/2026,INVALID,INVALID,PASS
+"[D2] D2 two-digit year ambiguous [provisional Q1, Q2]",12/05/26,INVALID,INVALID,PASS
+[D3] D3 slash unambiguous day > 12,13/01/2026,2026-01-13,2026-01-13,PASS
+[D4] D4 slash unambiguous month slot > 12,01/13/2026,2026-01-13,2026-01-13,PASS
+[D5] D5 slash both readings valid [provisional Q1],02/01/2026,INVALID,INVALID,PASS
+[F3] F3 impossible day 31 April,31/04/2026,INVALID,INVALID,PASS
+[F3] F3 impossible day 31 April in words,31 April 2026,INVALID,INVALID,PASS
+[F3] F3 impossible day 32 Jan,32 Jan 2026,INVALID,INVALID,PASS
+[F3] F3 impossible day 0 Jan,0 Jan 2026,INVALID,INVALID,PASS
+[F4] F4 leap day in non-leap year,29 February 2026,INVALID,INVALID,PASS
+[F5] F5 month 13,2026-13-01,INVALID,INVALID,PASS
+[F5] F5 month 00,2026-00-10,INVALID,INVALID,PASS
+[F6] F6 partial month and year only [provisional Q5],Mar 2026,INVALID,INVALID,PASS
+[F6] F6 partial year only [provisional Q5],2026,INVALID,INVALID,PASS
+[F7] F7 pending non-date,pending,INVALID,INVALID,PASS
+[F7] F7 N/A non-date,N/A,INVALID,INVALID,PASS
+[F7] F7 TBD non-date,TBD,INVALID,INVALID,PASS
+[F11] F11 misspelled month Janaury [provisional Q7],2 Janaury 2026,INVALID,INVALID,PASS
+[D1] Ambiguous date raises AMBIGUOUS,03/04/2026,AMBIGUOUS,AMBIGUOUS,PASS
+[F3] Impossible day raises IMPOSSIBLE,31/04/2026,IMPOSSIBLE,IMPOSSIBLE,PASS
+[F6] Partial date raises PARTIAL [provisional Q5],Mar 2026,PARTIAL,PARTIAL,PASS
+[F7] Garbage raises UNPARSEABLE,random garbage text,UNPARSEABLE,UNPARSEABLE,PASS
