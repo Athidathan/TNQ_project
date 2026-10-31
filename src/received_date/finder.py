@@ -92,6 +92,10 @@ def find_received_date(blocks: Sequence[TextBlock | str]) -> str:
             if not candidate:
                 continue
 
+            if not date_text:
+                # Label with no trailing date text (e.g. standalone table header cell)
+                continue
+
             try:
                 dt_iso = parse_date(date_text)
                 valid_dates.append(dt_iso)

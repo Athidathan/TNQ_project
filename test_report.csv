@@ -1,4 +1,24 @@
 checks,input,expected,actual,result
+[G9] Empty input folder exits 0,C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-1\test_cli_empty_folder0,0,0,PASS
+"[H1] Header row is exactly file,received_date",empty folder,"['file', 'received_date']","['file', 'received_date']",PASS
+[G10] Non-existent input folder exits non-zero,C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-1\test_cli_missing_input_folder0\does_not_exist,1,1,PASS
+CLI argument count validation exits 2,1 arg given,2,2,PASS
+"CLI processes corrupt, empty, and valid files with exit code 0",C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-1\test_cli_robustness_corrupt_an0\inputs,0,0,PASS
+[G1] Corrupt file results in INVALID,01_corrupt.docx,INVALID,INVALID,PASS
+[G2] Empty 0-byte file results in INVALID,02_empty.docx,INVALID,INVALID,PASS
+[G3] Empty text docx results in INVALID,03_notext.docx,INVALID,INVALID,PASS
+Valid docx results in 2026-01-02,04_valid.docx,2026-01-02,2026-01-02,PASS
+[G5] Word lock files starting with ~$ are skipped,~$lock_file.docx,False,False,PASS
+"[G4] Non-docx files (.txt, .pdf) are ignored",notes.txt,False,False,PASS
+[G6] Uppercase .DOCX extension is processed,uppercase.DOCX,True,True,PASS
+[H3] Filename containing comma is preserved and handled,"article, final draft.docx",True,True,PASS
+[H4] Rows sorted alphabetically by filename,"['article, final draft.docx', 'uppercase.DOCX']","['article, final draft.docx', 'uppercase.DOCX']","['article, final draft.docx', 'uppercase.DOCX']",PASS
+[H5] Overwrites existing output without stale data,stale content pre-existing,False,False,PASS
+[H10] Deterministic output across multiple runs,run 1 vs run 2,"file,received_date
+doc1.docx,2026-01-02
+","file,received_date
+doc1.docx,2026-01-02
+",PASS
 [C1] C1 standard abbreviated month,2 Jan 2026,2026-01-02,2026-01-02,PASS
 [C2] C2 full month name,2 January 2026,2026-01-02,2026-01-02,PASS
 [C3] C3 ISO format YYYY-MM-DD,2026-01-02,2026-01-02,2026-01-02,PASS
