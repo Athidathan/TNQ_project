@@ -35,3 +35,7 @@ env/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Microsoft Word temporary lock files
+~$*.docx
+manuscripts/~$*.docx
