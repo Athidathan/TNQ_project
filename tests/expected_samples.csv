@@ -1,0 +1,21 @@
+file,expected,status,note
+merged_01.docx,2026-01-02,confirmed,"Article history: Received: 2 Jan 2026; Revised…; Accepted…"
+merged_02.docx,2026-01-02,confirmed,"bottom of file, italic, full month"
+merged_03.docx,2026-01-02,confirmed,own line near top
+merged_04.docx,2026-01-02,confirmed,"Received at very bottom; Accepted is at the top"
+merged_05.docx,INVALID,provisional (Q1),Received: 03/04/2026 ambiguous
+merged_06.docx,INVALID,provisional (Q1),"03/04/2026; Revised/Accepted in March hint at 4 March, but the tool must not guess"
+merged_07.docx,INVALID,provisional (Q1),Received: 03/04/2026 at the bottom
+merged_08.docx,INVALID,provisional (Q3),only Accepted present
+merged_09.docx,INVALID,provisional (Q3),only Date accepted; prose received decoys
+merged_10.docx,2026-01-02,confirmed,own line
+merged_11.docx,2026-01-02,confirmed,"Received near top; Published online and Issue date at the bottom are decoys"
+merged_12.docx,INVALID,confirmed,not a real .docx file (corrupt); must not crash
+merged_13.docx,2026-01-02,confirmed,"in the page header: Received 2 Jan 2026 | Accepted… (no colon, pipe separated)"
+merged_14.docx,2026-01-02,confirmed,"Received 2 January 2026; Received in revised form 4 March 2026"
+merged_15.docx,2026-01-02,confirmed,"table row, ISO format; Accepted listed first"
+merged_16.docx,2026-01-02,confirmed,also has Revised (round 2)
+merged_17.docx,2026-01-02,confirmed,"Contains prose decoy 'We received 120 samples...' but has Received: 2 Jan 2026 at bottom"
+merged_18.docx,INVALID,provisional (Q1),12/05/26: two-digit year and ambiguous order
+merged_19.docx,INVALID,confirmed,31/04/2026: impossible under either day/month order
+merged_20.docx,2026-01-02,confirmed,Received: 2nd January 2026

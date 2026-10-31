@@ -1,9 +1,9 @@
 checks,input,expected,actual,result
-[G9] Empty input folder exits 0,C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-1\test_cli_empty_folder0,0,0,PASS
+[G9] Empty input folder exits 0,C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-3\test_cli_empty_folder0,0,0,PASS
 "[H1] Header row is exactly file,received_date",empty folder,"['file', 'received_date']","['file', 'received_date']",PASS
-[G10] Non-existent input folder exits non-zero,C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-1\test_cli_missing_input_folder0\does_not_exist,1,1,PASS
+[G10] Non-existent input folder exits non-zero,C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-3\test_cli_missing_input_folder0\does_not_exist,1,1,PASS
 CLI argument count validation exits 2,1 arg given,2,2,PASS
-"CLI processes corrupt, empty, and valid files with exit code 0",C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-1\test_cli_robustness_corrupt_an0\inputs,0,0,PASS
+"CLI processes corrupt, empty, and valid files with exit code 0",C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-3\test_cli_robustness_corrupt_an0\inputs,0,0,PASS
 [G1] Corrupt file results in INVALID,01_corrupt.docx,INVALID,INVALID,PASS
 [G2] Empty 0-byte file results in INVALID,02_empty.docx,INVALID,INVALID,PASS
 [G3] Empty text docx results in INVALID,03_notext.docx,INVALID,INVALID,PASS
@@ -93,3 +93,24 @@ doc1.docx,2026-01-02
 [E9] E9 multiple conflicting received dates [provisional Q4],Received: 2 Jan 2026 // Received: 15 Feb 2026,INVALID,INVALID,PASS
 [E10] E10 identical date repeated in header and body,Received 2 Jan 2026 | Accepted 10 Apr 2026 // Received: 2 Jan 2026,2026-01-02,2026-01-02,PASS
 [E11] E11 published online and issue date decoys following received,Received: 2 Jan 2026; Published online: 15 May 2026; Issue date: 1 June 2026,2026-01-02,2026-01-02,PASS
+[H2] Manuscripts batch run produces exactly 20 rows,manuscripts folder,20,20,PASS
+[Sample merged_01.docx] expected=2026-01-02 (confirmed: Article history: Received: 2 Jan 2026; Revised…; Accepted…),merged_01.docx,2026-01-02,2026-01-02,PASS
+"[Sample merged_02.docx] expected=2026-01-02 (confirmed: bottom of file, italic, full month)",merged_02.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_03.docx] expected=2026-01-02 (confirmed: own line near top),merged_03.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_04.docx] expected=2026-01-02 (confirmed: Received at very bottom; Accepted is at the top),merged_04.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_05.docx] expected=INVALID (provisional (Q1): Received: 03/04/2026 ambiguous),merged_05.docx,INVALID,INVALID,PASS
+"[Sample merged_06.docx] expected=INVALID (provisional (Q1): 03/04/2026; Revised/Accepted in March hint at 4 March, but the tool must not guess)",merged_06.docx,INVALID,INVALID,PASS
+[Sample merged_07.docx] expected=INVALID (provisional (Q1): Received: 03/04/2026 at the bottom),merged_07.docx,INVALID,INVALID,PASS
+[Sample merged_08.docx] expected=INVALID (provisional (Q3): only Accepted present),merged_08.docx,INVALID,INVALID,PASS
+[Sample merged_09.docx] expected=INVALID (provisional (Q3): only Date accepted; prose received decoys),merged_09.docx,INVALID,INVALID,PASS
+[Sample merged_10.docx] expected=2026-01-02 (confirmed: own line),merged_10.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_11.docx] expected=2026-01-02 (confirmed: Received near top; Published online and Issue date at the bottom are decoys),merged_11.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_12.docx] expected=INVALID (confirmed: not a real .docx file (corrupt); must not crash),merged_12.docx,INVALID,INVALID,PASS
+"[Sample merged_13.docx] expected=2026-01-02 (confirmed: in the page header: Received 2 Jan 2026 | Accepted… (no colon, pipe separated))",merged_13.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_14.docx] expected=2026-01-02 (confirmed: Received 2 January 2026; Received in revised form 4 March 2026),merged_14.docx,2026-01-02,2026-01-02,PASS
+"[Sample merged_15.docx] expected=2026-01-02 (confirmed: table row, ISO format; Accepted listed first)",merged_15.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_16.docx] expected=2026-01-02 (confirmed: also has Revised (round 2)),merged_16.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_17.docx] expected=2026-01-02 (confirmed: Contains prose decoy 'We received 120 samples...' but has Received: 2 Jan 2026 at bottom),merged_17.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_18.docx] expected=INVALID (provisional (Q1): 12/05/26: two-digit year and ambiguous order),merged_18.docx,INVALID,INVALID,PASS
+[Sample merged_19.docx] expected=INVALID (confirmed: 31/04/2026: impossible under either day/month order),merged_19.docx,INVALID,INVALID,PASS
+[Sample merged_20.docx] expected=2026-01-02 (confirmed: Received: 2nd January 2026),merged_20.docx,2026-01-02,2026-01-02,PASS
