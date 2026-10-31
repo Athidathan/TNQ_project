@@ -14,8 +14,11 @@ from typing import Final, Literal
 #     (e.g., 13/01/2026 or 01/13/2026), use that valid order.
 #   - "DMY": Always assume Day/Month/Year (UK/European/Indian academic standard).
 #   - "MDY": Always assume Month/Day/Year (US standard).
+#   - "INFER_DOCUMENT_CONTEXT": Check all dates across the current document to infer
+#     whether the manuscript adheres to DMY or MDY. If any unambiguous date indicates MDY,
+#     choose MDY. If any indicates DMY, choose DMY. If all are ambiguous, default to DMY.
 # PROVISIONAL (waiting for product owner, Q1)
-SlashPolicy = Literal["INVALID_IF_AMBIGUOUS", "DMY", "MDY"]
+SlashPolicy = Literal["INVALID_IF_AMBIGUOUS", "DMY", "MDY", "INFER_DOCUMENT_CONTEXT"]
 SLASH_POLICY: SlashPolicy = "INVALID_IF_AMBIGUOUS"
 
 # ---------------------------------------------------------------------------

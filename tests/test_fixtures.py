@@ -132,7 +132,7 @@ def test_scenario_g8_encrypted_docx(tmp_path: Path, report):
     create_encrypted_docx(enc_file)
 
     code = run_cli(str(in_dir), str(out_csv))
-    report("[G8] Password-protected docx handled gracefully with code 0", str(enc_file), 0, code)
+    report("[G8] Password-protected docx handled gracefully with code 0", "encrypted.docx", 0, code)
     assert code == 0
 
     with open(out_csv, encoding="utf-8") as f:
@@ -141,3 +141,4 @@ def test_scenario_g8_encrypted_docx(tmp_path: Path, report):
     res_map = {r["file"]: r["received_date"] for r in rows}
     report("[G8] Encrypted file produces INVALID", "encrypted.docx", "INVALID", res_map.get("encrypted.docx"))
     assert res_map.get("encrypted.docx") == "INVALID"
+

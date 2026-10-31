@@ -18,6 +18,7 @@ FINDER_SCENARIOS = [
     ("A5", "A5 Manuscript received variant [provisional Q3]", ["Manuscript received: 2 Jan 2026"], "2026-01-02"),
     ("A5", "A5 Date of receipt variant [provisional Q3]", ["Date of receipt: 2 Jan 2026"], "2026-01-02"),
     ("A6", "A6 table row joined cells", ["Received 2026-01-02"], "2026-01-02"),
+    ("A6", "A6 separate paragraph label and date", ["Received:", "2 Jan 2026"], "2026-01-02"),
     ("A7", "A7 multiple spaces between label and date", ["Received    2 Jan 2026"], "2026-01-02"),
     ("A8", "A8 dash separator", ["Received - 2 Jan 2026"], "2026-01-02"),
     ("A8", "A8 full-width colon separator", ["Received\uff1a2 Jan 2026"], "2026-01-02"),
@@ -28,7 +29,26 @@ FINDER_SCENARIOS = [
 
     # Group E: Decoys and distractor handling
     ("E1", "E1 prose received in sentence", ["We received 120 samples on 5 May 2025."], "INVALID"),
+    ("E1", "E1 sentence starting with Received does not ruin valid date", ["Received comments from reviewers were addressed.", "Received: 2 Jan 2026"], "2026-01-02"),
     ("E2", "E2 prose calibration received", ["We received the final calibration files on 14 February 2025"], "INVALID"),
+    (
+        "E3",
+        "E3 inline multi-label space separated",
+        ["Received: 2 Jan 2026 Revised: 4 Mar 2026"],
+        "2026-01-02",
+    ),
+    (
+        "E3",
+        "E3 inline multi-label period separated",
+        ["Received 2 January 2026. Accepted 10 April 2026."],
+        "2026-01-02",
+    ),
+    (
+        "E3",
+        "E3 inline multi-label in parentheses with comma",
+        ["(Received 2 Jan 2026, Accepted 10 Apr 2026)"],
+        "2026-01-02",
+    ),
     (
         "E3",
         "E3 received in revised form lookalike rejected",
@@ -85,3 +105,37 @@ def test_finder_scenarios(report, scenario_id: str, check: str, blocks: list, ex
     input_repr = " // ".join(str(b) for b in blocks)
     report(f"[{scenario_id}] {check}", input_repr, expected, actual)
     assert actual == expected
+
+
+
+def test_q1_smart_inference_dmy_clue(report):
+    """Q1: Disambiguate slash date using document context (DMY clue from other date)."""
+    blocks = [
+        "Received: 03/04/2026",
+        "Revised: 15/05/2026",  # 15 > 12 proves DMY
+    ]
+    res = find_received_date(blocks, policy="INFER_DOCUMENT_CONTEXT")
+    report("[D6] Smart Q1 inference resolves DMY from other date", "03/04 with 15/05", "2026-04-03", res)
+    assert res == "2026-04-03"
+
+
+def test_q1_smart_inference_mdy_clue(report):
+    """Q1: Disambiguate slash date using document context (MDY clue from Accepted in March)."""
+    blocks = [
+        "Received: 03/04/2026",
+        "Accepted: 28 March 2026",  # Received before Accepted proves March 4 (MDY)
+    ]
+    res = find_received_date(blocks, policy="INFER_DOCUMENT_CONTEXT")
+    report("[D6] Smart Q1 inference resolves MDY from Accepted chronology", "03/04 with Accepted 28 March", "2026-03-04", res)
+    assert res == "2026-03-04"
+
+
+def test_q1_smart_inference_fallback_dmy(report):
+    """Q1: When all dates in document are ambiguous, default to DMY per academic standard."""
+    blocks = [
+        "Received: 03/04/2026",
+        "Revised: 05/06/2026",
+    ]
+    res = find_received_date(blocks, policy="INFER_DOCUMENT_CONTEXT")
+    report("[D6] Smart Q1 inference defaults to DMY when ambiguous", "03/04 with 05/06", "2026-04-03", res)
+    assert res == "2026-04-03"

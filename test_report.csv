@@ -1,9 +1,9 @@
 checks,input,expected,actual,result
-[G9] Empty input folder exits 0,C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-5\test_cli_empty_folder0,0,0,PASS
-"[H1] Header row is exactly file,received_date",empty folder,"['file', 'received_date']","['file', 'received_date']",PASS
-[G10] Non-existent input folder exits non-zero,C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-5\test_cli_missing_input_folder0\does_not_exist,1,1,PASS
+[G9] Empty input folder exits 0,empty directory,0,0,PASS
+"[H1] Header row is exactly file,received_date",empty directory,"file,received_date","file,received_date",PASS
+[G10] Non-existent input folder exits non-zero,missing directory,1,1,PASS
 CLI argument count validation exits 2,1 arg given,2,2,PASS
-"CLI processes corrupt, empty, and valid files with exit code 0",C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-5\test_cli_robustness_corrupt_an0\inputs,0,0,PASS
+"CLI processes corrupt, empty, and valid files with exit code 0",batch directory,0,0,PASS
 [G1] Corrupt file results in INVALID,01_corrupt.docx,INVALID,INVALID,PASS
 [G2] Empty 0-byte file results in INVALID,02_empty.docx,INVALID,INVALID,PASS
 [G3] Empty text docx results in INVALID,03_notext.docx,INVALID,INVALID,PASS
@@ -12,13 +12,11 @@ Valid docx results in 2026-01-02,04_valid.docx,2026-01-02,2026-01-02,PASS
 "[G4] Non-docx files (.txt, .pdf) are ignored",notes.txt,False,False,PASS
 [G6] Uppercase .DOCX extension is processed,uppercase.DOCX,True,True,PASS
 [H3] Filename containing comma is preserved and handled,"article, final draft.docx",True,True,PASS
-[H4] Rows sorted alphabetically by filename,"['article, final draft.docx', 'uppercase.DOCX']","['article, final draft.docx', 'uppercase.DOCX']","['article, final draft.docx', 'uppercase.DOCX']",PASS
+[H4] Rows sorted alphabetically by filename,"article, final draft.docx; uppercase.DOCX",True,True,PASS
 [H5] Overwrites existing output without stale data,stale content pre-existing,False,False,PASS
-[H10] Deterministic output across multiple runs,run 1 vs run 2,"file,received_date
-doc1.docx,2026-01-02
-","file,received_date
-doc1.docx,2026-01-02
-",PASS
+[H10] Deterministic output across multiple runs,run 1 vs run 2,IDENTICAL,IDENTICAL,PASS
+CLI --reason flag adds reason column,--reason,"file,received_date,reason","file,received_date,reason",PASS
+CLI --policy dmy resolves ambiguous slash date as DMY,03/04/2026 with --policy dmy,2026-04-03,2026-04-03,PASS
 [C1] C1 standard abbreviated month,2 Jan 2026,2026-01-02,2026-01-02,PASS
 [C2] C2 full month name,2 January 2026,2026-01-02,2026-01-02,PASS
 [C3] C3 ISO format YYYY-MM-DD,2026-01-02,2026-01-02,2026-01-02,PASS
@@ -36,6 +34,7 @@ doc1.docx,2026-01-02
 [C10] C10 four-letter Sept abbreviation with dot,4th Sept. 2026,2026-09-04,2026-09-04,PASS
 [C11] C11 uppercase month name,2 JANUARY 2026,2026-01-02,2026-01-02,PASS
 [C12] C12 leading weekday with comma,"Friday, 2 January 2026",2026-01-02,2026-01-02,PASS
+[C12] C12 leading weekday Sun abbreviation,"Sun, 2 Jan 2026",2026-01-02,2026-01-02,PASS
 [C13] C13 ISO date with ISO time and UTC Z,2026-01-02T10:30:00Z,2026-01-02,2026-01-02,PASS
 [C13] C13 date with time and timezone IST,"2 Jan 2026, 10:30 IST",2026-01-02,2026-01-02,PASS
 [C14] C14 comma after month name,"2 Jan, 2026",2026-01-02,2026-01-02,PASS
@@ -57,6 +56,7 @@ doc1.docx,2026-01-02
 [F5] F5 month 00,2026-00-10,INVALID,INVALID,PASS
 [F6] F6 partial month and year only [provisional Q5],Mar 2026,INVALID,INVALID,PASS
 [F6] F6 partial year only [provisional Q5],2026,INVALID,INVALID,PASS
+[F7] F7 three digit year rejected,2 Jan 202,INVALID,INVALID,PASS
 [F7] F7 pending non-date,pending,INVALID,INVALID,PASS
 [F7] F7 N/A non-date,N/A,INVALID,INVALID,PASS
 [F7] F7 TBD non-date,TBD,INVALID,INVALID,PASS
@@ -75,6 +75,7 @@ doc1.docx,2026-01-02
 [A5] A5 Manuscript received variant [provisional Q3],Manuscript received: 2 Jan 2026,2026-01-02,2026-01-02,PASS
 [A5] A5 Date of receipt variant [provisional Q3],Date of receipt: 2 Jan 2026,2026-01-02,2026-01-02,PASS
 [A6] A6 table row joined cells,Received 2026-01-02,2026-01-02,2026-01-02,PASS
+[A6] A6 separate paragraph label and date,Received: // 2 Jan 2026,2026-01-02,2026-01-02,PASS
 [A7] A7 multiple spaces between label and date,Received    2 Jan 2026,2026-01-02,2026-01-02,PASS
 [A8] A8 dash separator,Received - 2 Jan 2026,2026-01-02,2026-01-02,PASS
 [A8] A8 full-width colon separator,Received：2 Jan 2026,2026-01-02,2026-01-02,PASS
@@ -83,7 +84,11 @@ doc1.docx,2026-01-02
 [A10] A10 substitute label Date accepted [provisional Q3],Date accepted: 2 Jan 2026,INVALID,INVALID,PASS
 [A10] A10 substitute label Published online [provisional Q3],Published online: 2 Jan 2026,INVALID,INVALID,PASS
 [E1] E1 prose received in sentence,We received 120 samples on 5 May 2025.,INVALID,INVALID,PASS
+[E1] E1 sentence starting with Received does not ruin valid date,Received comments from reviewers were addressed. // Received: 2 Jan 2026,2026-01-02,2026-01-02,PASS
 [E2] E2 prose calibration received,We received the final calibration files on 14 February 2025,INVALID,INVALID,PASS
+[E3] E3 inline multi-label space separated,Received: 2 Jan 2026 Revised: 4 Mar 2026,2026-01-02,2026-01-02,PASS
+[E3] E3 inline multi-label period separated,Received 2 January 2026. Accepted 10 April 2026.,2026-01-02,2026-01-02,PASS
+[E3] E3 inline multi-label in parentheses with comma,"(Received 2 Jan 2026, Accepted 10 Apr 2026)",2026-01-02,2026-01-02,PASS
 [E3] E3 received in revised form lookalike rejected,Received 2 January 2026; Received in revised form 4 March 2026; Accepted 10 April 2026,2026-01-02,2026-01-02,PASS
 [E4] E4 only revised and accepted present [provisional Q3],Revised: 4 Mar 2026; Accepted: 10 Apr 2026,INVALID,INVALID,PASS
 [E5] E5 bibliography accessed date,[9] Regional Science Council. Guidance note. Accessed: 12 January 2026.,INVALID,INVALID,PASS
@@ -93,6 +98,9 @@ doc1.docx,2026-01-02
 [E9] E9 multiple conflicting received dates [provisional Q4],Received: 2 Jan 2026 // Received: 15 Feb 2026,INVALID,INVALID,PASS
 [E10] E10 identical date repeated in header and body,Received 2 Jan 2026 | Accepted 10 Apr 2026 // Received: 2 Jan 2026,2026-01-02,2026-01-02,PASS
 [E11] E11 published online and issue date decoys following received,Received: 2 Jan 2026; Published online: 15 May 2026; Issue date: 1 June 2026,2026-01-02,2026-01-02,PASS
+[D6] Smart Q1 inference resolves DMY from other date,03/04 with 15/05,2026-04-03,2026-04-03,PASS
+[D6] Smart Q1 inference resolves MDY from Accepted chronology,03/04 with Accepted 28 March,2026-03-04,2026-03-04,PASS
+[D6] Smart Q1 inference defaults to DMY when ambiguous,03/04 with 05/06,2026-04-03,2026-04-03,PASS
 [B5] Received date in footer extracted,footer.docx,2026-01-02,2026-01-02,PASS
 [B7] Received date in text box extracted,textbox.docx,2026-01-02,2026-01-02,PASS
 [B8] Received date in footnote extracted,footnote.docx,2026-01-02,2026-01-02,PASS
@@ -100,26 +108,26 @@ doc1.docx,2026-01-02
 [B12] Hidden text included [provisional Q8],hidden.docx,2026-01-02,2026-01-02,PASS
 [A9] Label split across multiple text runs is unified,split.docx,2026-01-02,2026-01-02,PASS
 [G7] Subfolders inside input folder are ignored [provisional Q10],nested_subfolder/nested_doc.docx,False,False,PASS
-[G8] Password-protected docx handled gracefully with code 0,C:\Users\athid\AppData\Local\Temp\pytest-of-athid\pytest-5\test_scenario_g8_encrypted_doc0\inputs\encrypted.docx,0,0,PASS
+[G8] Password-protected docx handled gracefully with code 0,encrypted.docx,0,0,PASS
 [G8] Encrypted file produces INVALID,encrypted.docx,INVALID,INVALID,PASS
 [H2] Manuscripts batch run produces exactly 20 rows,manuscripts folder,20,20,PASS
-[Sample merged_01.docx] expected=2026-01-02 (confirmed: Article history: Received: 2 Jan 2026; Revised…; Accepted…),merged_01.docx,2026-01-02,2026-01-02,PASS
-"[Sample merged_02.docx] expected=2026-01-02 (confirmed: bottom of file, italic, full month)",merged_02.docx,2026-01-02,2026-01-02,PASS
-[Sample merged_03.docx] expected=2026-01-02 (confirmed: own line near top),merged_03.docx,2026-01-02,2026-01-02,PASS
-[Sample merged_04.docx] expected=2026-01-02 (confirmed: Received at very bottom; Accepted is at the top),merged_04.docx,2026-01-02,2026-01-02,PASS
-[Sample merged_05.docx] expected=INVALID (provisional (Q1): Received: 03/04/2026 ambiguous),merged_05.docx,INVALID,INVALID,PASS
-"[Sample merged_06.docx] expected=INVALID (provisional (Q1): 03/04/2026; Revised/Accepted in March hint at 4 March, but the tool must not guess)",merged_06.docx,INVALID,INVALID,PASS
-[Sample merged_07.docx] expected=INVALID (provisional (Q1): Received: 03/04/2026 at the bottom),merged_07.docx,INVALID,INVALID,PASS
-[Sample merged_08.docx] expected=INVALID (provisional (Q3): only Accepted present),merged_08.docx,INVALID,INVALID,PASS
-[Sample merged_09.docx] expected=INVALID (provisional (Q3): only Date accepted; prose received decoys),merged_09.docx,INVALID,INVALID,PASS
-[Sample merged_10.docx] expected=2026-01-02 (confirmed: own line),merged_10.docx,2026-01-02,2026-01-02,PASS
-[Sample merged_11.docx] expected=2026-01-02 (confirmed: Received near top; Published online and Issue date at the bottom are decoys),merged_11.docx,2026-01-02,2026-01-02,PASS
-[Sample merged_12.docx] expected=INVALID (confirmed: not a real .docx file (corrupt); must not crash),merged_12.docx,INVALID,INVALID,PASS
-"[Sample merged_13.docx] expected=2026-01-02 (confirmed: in the page header: Received 2 Jan 2026 | Accepted… (no colon, pipe separated))",merged_13.docx,2026-01-02,2026-01-02,PASS
-[Sample merged_14.docx] expected=2026-01-02 (confirmed: Received 2 January 2026; Received in revised form 4 March 2026),merged_14.docx,2026-01-02,2026-01-02,PASS
-"[Sample merged_15.docx] expected=2026-01-02 (confirmed: table row, ISO format; Accepted listed first)",merged_15.docx,2026-01-02,2026-01-02,PASS
-[Sample merged_16.docx] expected=2026-01-02 (confirmed: also has Revised (round 2)),merged_16.docx,2026-01-02,2026-01-02,PASS
-[Sample merged_17.docx] expected=2026-01-02 (confirmed: Contains prose decoy 'We received 120 samples...' but has Received: 2 Jan 2026 at bottom),merged_17.docx,2026-01-02,2026-01-02,PASS
-[Sample merged_18.docx] expected=INVALID (provisional (Q1): 12/05/26: two-digit year and ambiguous order),merged_18.docx,INVALID,INVALID,PASS
-[Sample merged_19.docx] expected=INVALID (confirmed: 31/04/2026: impossible under either day/month order),merged_19.docx,INVALID,INVALID,PASS
-[Sample merged_20.docx] expected=2026-01-02 (confirmed: Received: 2nd January 2026),merged_20.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_01.docx] Article history one-liner with received and revised,merged_01.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_02.docx] Bottom of file with italic full month,merged_02.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_03.docx] Dedicated line near top under title,merged_03.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_04.docx] Received at bottom with accepted at top,merged_04.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_05.docx] Ambiguous slash date 03/04/2026 [provisional Q1],merged_05.docx,INVALID,INVALID,PASS
+[Sample merged_06.docx] Ambiguous slash date with decoy hints [provisional Q1],merged_06.docx,INVALID,INVALID,PASS
+[Sample merged_07.docx] Ambiguous slash date at bottom [provisional Q1],merged_07.docx,INVALID,INVALID,PASS
+[Sample merged_08.docx] Missing received with accepted present [provisional Q3],merged_08.docx,INVALID,INVALID,PASS
+[Sample merged_09.docx] Prose received decoys with date accepted [provisional Q3],merged_09.docx,INVALID,INVALID,PASS
+[Sample merged_10.docx] Separate line under authors,merged_10.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_11.docx] Received with published online and issue date decoys,merged_11.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_12.docx] Corrupt non-zip document handled safely,merged_12.docx,INVALID,INVALID,PASS
+[Sample merged_13.docx] Page header pipe-separated date metadata,merged_13.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_14.docx] Received alongside received in revised form decoy,merged_14.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_15.docx] Table row metadata extraction with joined cells,merged_15.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_16.docx] Multiple revision rounds ignored,merged_16.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_17.docx] Prose decoy rejected and bottom metadata line extracted,merged_17.docx,2026-01-02,2026-01-02,PASS
+[Sample merged_18.docx] Two-digit year with ambiguous slash date [provisional Q1],merged_18.docx,INVALID,INVALID,PASS
+[Sample merged_19.docx] Impossible day 31 April rejected,merged_19.docx,INVALID,INVALID,PASS
+[Sample merged_20.docx] Ordinal day format 2nd January,merged_20.docx,2026-01-02,2026-01-02,PASS

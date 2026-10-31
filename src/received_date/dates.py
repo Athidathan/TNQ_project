@@ -77,7 +77,7 @@ PARTIAL_DATE_REGEXES: Final[tuple[re.Pattern[str], ...]] = (
 
 # Regex to strip leading weekday
 WEEKDAY_PREFIX_REGEX = re.compile(
-    r"^(?:mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day))[, ]+\s*",
+    r"^(?:mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)[, ]+\s*",
     re.IGNORECASE,
 )
 
@@ -130,12 +130,17 @@ def _expand_year(year_str: str) -> int:
     return y
 
 
-def parse_date(raw_text: str) -> str:
+def parse_date(raw_text: str, policy: str | None = None) -> str:
     """Parse text into ISO formatted 'YYYY-MM-DD'.
     
+    Args:
+        raw_text: Input text containing a date representation.
+        policy: Optional override for rules.SLASH_POLICY (e.g. 'DMY', 'MDY', 'INVALID_IF_AMBIGUOUS').
+        
     Raises:
         DateError: If the date is ambiguous, impossible, partial, or unparseable.
     """
+    effective_policy = policy or rules.SLASH_POLICY
     clean = _strip_date_affixes(raw_text)
     if not clean:
         raise DateError(DateErrorReason.UNPARSEABLE, "Empty date text")
@@ -156,8 +161,9 @@ def parse_date(raw_text: str) -> str:
         return dt.isoformat()
 
     # 2. Day MonthName Year (e.g. 2 Jan 2026, 02 January 2026, 2nd January 2026, 2-Jan-2026)
+    # Strictly require 4-digit or 2-digit years (rejects 3-digit years like '2 Jan 202')
     m_dmy = re.match(
-        r"^(\d{1,2})(?:st|nd|rd|th)?[\s.-]+([a-zA-Z]+)\.?[\s,.-]+(\d{2,4})$",
+        r"^(\d{1,2})(?:st|nd|rd|th)?[\s.-]+([a-zA-Z]+)\.?[\s,.-]+(\d{4}|\d{2})$",
         clean,
     )
     if m_dmy:
@@ -172,8 +178,9 @@ def parse_date(raw_text: str) -> str:
             raise DateError(DateErrorReason.UNPARSEABLE, f"Unrecognized month name: {month_word}")
 
     # 3. MonthName Day Year (e.g. January 2, 2026, Jan 2, 2026, Jan. 2, 2026)
+    # Strictly require 4-digit or 2-digit years
     m_mdy = re.match(
-        r"^([a-zA-Z]+)\.?[\s.-]+(\d{1,2})(?:st|nd|rd|th)?(?:,)?[\s.-]+(\d{2,4})$",
+        r"^([a-zA-Z]+)\.?[\s.-]+(\d{1,2})(?:st|nd|rd|th)?(?:,)?[\s.-]+(\d{4}|\d{2})$",
         clean,
     )
     if m_mdy:
@@ -188,7 +195,8 @@ def parse_date(raw_text: str) -> str:
             raise DateError(DateErrorReason.UNPARSEABLE, f"Unrecognized month name: {month_word}")
 
     # 4. Numeric with separators /, ., - : A / B / C (e.g. 02/01/2026, 2.1.2026, 12/05/26)
-    m_num = re.match(r"^(\d{1,2})([/.-])(\d{1,2})\2(\d{2,4})$", clean)
+    # Strictly require 4-digit or 2-digit years
+    m_num = re.match(r"^(\d{1,2})([/.-])(\d{1,2})\2(\d{4}|\d{2})$", clean)
     if m_num:
         a = int(m_num.group(1))
         b = int(m_num.group(3))
@@ -222,23 +230,23 @@ def parse_date(raw_text: str) -> str:
         if mdy_valid and not dmy_valid:
             return mdy_date.isoformat()
 
-        # Both interpretations are valid -> consult rules.SLASH_POLICY
-        if rules.SLASH_POLICY == "INVALID_IF_AMBIGUOUS":
+        # Both interpretations are valid -> consult effective_policy
+        if effective_policy == "INVALID_IF_AMBIGUOUS":
             raise DateError(
                 DateErrorReason.AMBIGUOUS,
                 f"Numeric date '{raw_text}' is ambiguous between DD/MM and MM/DD",
             )
-        elif rules.SLASH_POLICY == "DMY":
+        elif effective_policy == "DMY":
             return dmy_date.isoformat()
-        elif rules.SLASH_POLICY == "MDY":
+        elif effective_policy == "MDY":
             return mdy_date.isoformat()
 
     raise DateError(DateErrorReason.UNPARSEABLE, f"Unable to parse date from '{raw_text}'")
 
 
-def parse_date_or_invalid(text: str) -> str:
+def parse_date_or_invalid(text: str, policy: str | None = None) -> str:
     """Safe date parser returning YYYY-MM-DD on success, or 'INVALID' on any DateError."""
     try:
-        return parse_date(text)
+        return parse_date(text, policy=policy)
     except DateError:
         return "INVALID"

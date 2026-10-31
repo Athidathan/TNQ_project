@@ -29,6 +29,7 @@ DATE_SCENARIO_CASES = [
     ("C10", "C10 four-letter Sept abbreviation with dot", "4th Sept. 2026", "2026-09-04"),
     ("C11", "C11 uppercase month name", "2 JANUARY 2026", "2026-01-02"),
     ("C12", "C12 leading weekday with comma", "Friday, 2 January 2026", "2026-01-02"),
+    ("C12", "C12 leading weekday Sun abbreviation", "Sun, 2 Jan 2026", "2026-01-02"),
     ("C13", "C13 ISO date with ISO time and UTC Z", "2026-01-02T10:30:00Z", "2026-01-02"),
     ("C13", "C13 date with time and timezone IST", "2 Jan 2026, 10:30 IST", "2026-01-02"),
     ("C14", "C14 comma after month name", "2 Jan, 2026", "2026-01-02"),
@@ -54,6 +55,7 @@ DATE_SCENARIO_CASES = [
     ("F5", "F5 month 00", "2026-00-10", "INVALID"),
     ("F6", "F6 partial month and year only [provisional Q5]", "Mar 2026", "INVALID"),
     ("F6", "F6 partial year only [provisional Q5]", "2026", "INVALID"),
+    ("F7", "F7 three digit year rejected", "2 Jan 202", "INVALID"),
     ("F7", "F7 pending non-date", "pending", "INVALID"),
     ("F7", "F7 N/A non-date", "N/A", "INVALID"),
     ("F7", "F7 TBD non-date", "TBD", "INVALID"),
@@ -89,3 +91,4 @@ def test_date_error_reasons(report):
         parse_date("random garbage text")
     report("[F7] Garbage raises UNPARSEABLE", "random garbage text", DateErrorReason.UNPARSEABLE.value, exc_info.value.reason.value)
     assert exc_info.value.reason == DateErrorReason.UNPARSEABLE
+

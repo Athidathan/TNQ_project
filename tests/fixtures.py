@@ -161,3 +161,4 @@ def create_encrypted_docx(path: Path) -> None:
     if cd_idx != -1:
         raw[cd_idx + 8] |= 0x01
     path.write_bytes(raw)
+

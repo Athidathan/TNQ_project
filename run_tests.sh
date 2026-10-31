@@ -37,3 +37,4 @@ echo "Executing pytest suite and generating test_report.csv..."
 python -m pytest
 
 echo "All tests finished successfully. test_report.csv updated."
+

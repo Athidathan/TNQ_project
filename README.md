@@ -12,16 +12,24 @@ Built for Python 3.12+ without external runtime dependencies.
 On any clean Linux/macOS machine with Python 3.12+:
 ```bash
 chmod +x run.sh
+
+# Standard hackathon run (outputs: file,received_date)
 ./run.sh manuscripts output.csv
+
+# Optional: Include explanation reasons for valid/invalid files (outputs: file,received_date,reason)
+./run.sh manuscripts output.csv --reason
+
+# Optional: Run with smart Q1 document-context date inference
+./run.sh manuscripts output.csv --reason --policy infer
 ```
 
 Directly via Python:
 ```bash
 # Linux / macOS
-PYTHONPATH=src python3 -m received_date.cli manuscripts output.csv
+PYTHONPATH=src python3 -m received_date.cli manuscripts output.csv [--reason] [--policy infer]
 
 # Windows PowerShell
-$env:PYTHONPATH="src"; python -m received_date.cli manuscripts output.csv
+$env:PYTHONPATH="src"; python -m received_date.cli manuscripts output.csv --reason
 ```
 
 ### Running the Automated Tests
@@ -93,7 +101,7 @@ Each open decision has a clearly documented **PROVISIONAL** default:
 
 | Decision ID | Question / Ambiguity | Provisional Default Setting | Reasoning |
 |---|---|---|---|
-| **Q1** | Numeric date ambiguity (`03/04/2026`): DD/MM or MM/DD? | `SLASH_POLICY = "INVALID_IF_AMBIGUOUS"` | Never guess. If both day/month interpretations are valid calendar dates, mark `INVALID`. If only one is valid (e.g. `13/01/2026`), accept it. |
+| **Q1** | Numeric date ambiguity (`03/04/2026`): DD/MM or MM/DD? | `SLASH_POLICY = "INVALID_IF_AMBIGUOUS"` (Supports `"INFER_DOCUMENT_CONTEXT"` via `--policy infer`) | Baseline: Never guess (ambiguous = `INVALID`). Smart option: scans all dates across the manuscript for unambiguous Day/Month slots, text style (`DD Month` vs `Month DD`), and Accepted date chronology. If all are ambiguous, defaults to academic standard DMY. |
 | **Q2** | Two-digit year expansion base (`12/05/26`) | `TWO_DIGIT_YEAR_BASE = 2000` | Expands `26` to `2026`. (Ambiguous day/month order still governed by Q1). |
 | **Q3** | Accepted received labels | `LABELS = ("received", "date received", "received on", "manuscript received", "date of receipt")` | No fallback to `Submitted`, `Accepted`, or `Published online`. |
 | **Q4** | Conflicting received dates in a single document | `MULTIPLE_RECEIVED_POLICY = "INVALID"` | Identical repeats across header/body count as one date. Different dates return `INVALID`. |
@@ -152,3 +160,4 @@ Each open decision has a clearly documented **PROVISIONAL** default:
 | `merged_20.docx` | `2026-01-02` | Confirmed | Ordinal format: `Received: 2nd January 2026` |
 
 > **Note on `merged_17.docx`**: Direct inspection of the underlying XML in `merged_17.docx` confirms that while it includes a prose decoy sentence in the body (*"We received 120 samples on 5 May 2025"*), it also includes an official metadata history line at the bottom (*"Received: 2 Jan 2026; Revised: 4 Mar 2026; Accepted: 10 Apr 2026"*). The tool accurately rejects the prose decoy and extracts the confirmed received date `2026-01-02`.
+

@@ -44,13 +44,13 @@ def test_cli_empty_folder(tmp_path: Path, report):
     """G9: Empty input folder writes CSV with header only and exits 0."""
     out_csv = tmp_path / "out.csv"
     code = run_cli(str(tmp_path), str(out_csv))
-    report("[G9] Empty input folder exits 0", str(tmp_path), 0, code)
+    report("[G9] Empty input folder exits 0", "empty directory", 0, code)
     assert code == 0
 
     assert out_csv.exists()
     with open(out_csv, encoding="utf-8") as f:
         reader = list(csv.reader(f))
-    report("[H1] Header row is exactly file,received_date", "empty folder", ["file", "received_date"], reader[0])
+    report("[H1] Header row is exactly file,received_date", "empty directory", "file,received_date", ",".join(reader[0]))
     assert reader == [["file", "received_date"]]
 
 
@@ -59,7 +59,7 @@ def test_cli_missing_input_folder(tmp_path: Path, report):
     non_existent = tmp_path / "does_not_exist"
     out_csv = tmp_path / "out.csv"
     code = run_cli(str(non_existent), str(out_csv))
-    report("[G10] Non-existent input folder exits non-zero", str(non_existent), 1, code)
+    report("[G10] Non-existent input folder exits non-zero", "missing directory", 1, code)
     assert code != 0
 
 
@@ -86,7 +86,7 @@ def test_cli_robustness_corrupt_and_empty_files(tmp_path: Path, report):
     make_minimal_docx(in_dir / "04_valid.docx", "Received: 2 Jan 2026")
 
     code = run_cli(str(in_dir), str(out_csv))
-    report("CLI processes corrupt, empty, and valid files with exit code 0", str(in_dir), 0, code)
+    report("CLI processes corrupt, empty, and valid files with exit code 0", "batch directory", 0, code)
     assert code == 0
 
     with open(out_csv, encoding="utf-8") as f:
@@ -139,7 +139,7 @@ def test_cli_file_filtering_and_special_names(tmp_path: Path, report):
     assert "article, final draft.docx" in filenames
 
     # H4: Sorted order
-    report("[H4] Rows sorted alphabetically by filename", str(filenames), sorted(filenames), filenames)
+    report("[H4] Rows sorted alphabetically by filename", "; ".join(filenames), True, filenames == sorted(filenames))
     assert filenames == sorted(filenames)
 
 
@@ -162,6 +162,52 @@ def test_cli_overwrite_and_idempotence(tmp_path: Path, report):
         content_run2 = f.read()
 
     report("[H5] Overwrites existing output without stale data", "stale content pre-existing", False, "old,data" in content_run1)
-    report("[H10] Deterministic output across multiple runs", "run 1 vs run 2", content_run1, content_run2)
+    report("[H10] Deterministic output across multiple runs", "run 1 vs run 2", "IDENTICAL", "IDENTICAL" if content_run1 == content_run2 else "DIFFERENT")
     assert "old,data" not in content_run1
     assert content_run1 == content_run2
+
+
+
+def test_cli_reason_flag(tmp_path: Path, report):
+    """Verify that --reason flag includes a third column with explanation reasons."""
+    in_dir = tmp_path / "inputs"
+    in_dir.mkdir()
+    out_csv = tmp_path / "out.csv"
+
+    make_minimal_docx(in_dir / "valid.docx", "Received: 2 Jan 2026")
+    make_minimal_docx(in_dir / "missing.docx", "Accepted: 10 Apr 2026")
+
+    code = main([str(in_dir), str(out_csv), "--reason"])
+    assert code == 0
+
+    with open(out_csv, encoding="utf-8") as f:
+        reader = list(csv.reader(f))
+
+    header = reader[0]
+    report("CLI --reason flag adds reason column", "--reason", "file,received_date,reason", ",".join(header))
+    assert header == ["file", "received_date", "reason"]
+
+    row_map = {r[0]: (r[1], r[2]) for r in reader[1:]}
+    assert row_map["valid.docx"][0] == "2026-01-02"
+    assert "Matched received label" in row_map["valid.docx"][1]
+    assert row_map["missing.docx"][0] == "INVALID"
+    assert "No received date label found" in row_map["missing.docx"][1]
+
+
+def test_cli_policy_flag(tmp_path: Path, report):
+    """Verify that --policy dmy overrides slash policy to assume Day/Month/Year."""
+    in_dir = tmp_path / "inputs"
+    in_dir.mkdir()
+    out_csv = tmp_path / "out.csv"
+
+    make_minimal_docx(in_dir / "slash.docx", "Received: 03/04/2026")
+
+    code = main([str(in_dir), str(out_csv), "--policy", "dmy"])
+    assert code == 0
+
+    with open(out_csv, encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+
+    actual = rows[0]["received_date"]
+    report("CLI --policy dmy resolves ambiguous slash date as DMY", "03/04/2026 with --policy dmy", "2026-04-03", actual)
+    assert actual == "2026-04-03"
