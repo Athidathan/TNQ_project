@@ -64,33 +64,40 @@ def infer_document_date_order(blocks: Sequence[TextBlock | str]) -> str:
     Examines all dates in the document:
       1. Numeric dates with unambiguous day slots (e.g. 21.12.2026 or 15/03/2026 -> DMY).
       2. Dates written with month names (e.g. '15 May 2026' -> DMY vs 'May 15, 2026' -> MDY).
-      3. Chronological constraints: if Accepted date is known (e.g. 28 March 2026) and Received
-         03/04 as MDY (4 March) precedes Accepted while DMY (3 April) succeeds it, MDY is chosen.
+      3. Chronological constraints: if an Accepted or Revised milestone date is known,
+         any ambiguous date that falls AFTER the milestone under one interpretation
+         is eliminated as chronologically impossible (Received must precede Accepted/Revised).
       4. Default fallback: If ambiguous or no decisive clue, default to DMY.
     """
     dmy_score = 0
     mdy_score = 0
-    accepted_date: datetime.date | None = None
+    milestone_dates: list[datetime.date] = []
+    ambiguous_numeric_dates: list[tuple[int, int, int]] = []
 
     for block in blocks:
         text = block.text if isinstance(block, TextBlock) else str(block)
 
-        # Look for accepted date to check chronology
-        m_acc = re.search(r"\baccepted[:\s]+([^\s;,|]+(?:\s+[^\s;,|]+){0,3})", text, re.IGNORECASE)
-        if m_acc and not accepted_date:
+        # Look for accepted or revised date to evaluate chronological ordering
+        for m_lbl in re.finditer(r"\b(?:accepted|revised)[:\s]+([^\s;,|]+(?:\s+[^\s;,|]+){0,3})", text, re.IGNORECASE):
+            raw_candidate = m_lbl.group(1).strip(".,;: ")
             try:
-                acc_iso = parse_date(m_acc.group(1))
-                accepted_date = datetime.date.fromisoformat(acc_iso)
+                acc_iso = parse_date(raw_candidate)
+                milestone_dates.append(datetime.date.fromisoformat(acc_iso))
             except Exception:
                 pass
 
         # Look for unambiguous numeric dates (e.g. 21.12.2026 or 13/05/2026)
         for m in re.finditer(r"\b(\d{1,2})([/.-])(\d{1,2})\2(\d{4}|\d{2})\b", text):
             a, b = int(m.group(1)), int(m.group(3))
+            raw_y = m.group(4)
+            y = rules.TWO_DIGIT_YEAR_BASE + int(raw_y) if len(raw_y) == 2 else int(raw_y)
+
             if a > 12 and b <= 12:
                 dmy_score += 3  # Slot 1 must be Day -> DMY
             elif b > 12 and a <= 12:
                 mdy_score += 3  # Slot 2 must be Day -> MDY
+            elif a <= 12 and b <= 12 and a != b:
+                ambiguous_numeric_dates.append((a, b, y))
 
         # Look for text dates (Day Month Year vs Month Day Year)
         if re.search(r"\b\d{1,2}(?:st|nd|rd|th)?\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{4}\b", text, re.IGNORECASE):
@@ -98,10 +105,20 @@ def infer_document_date_order(blocks: Sequence[TextBlock | str]) -> str:
         if re.search(r"\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4}\b", text, re.IGNORECASE):
             mdy_score += 1
 
-    # Check chronology for 03/04 vs Accepted
-    if accepted_date and accepted_date.year == 2026 and accepted_date.month == 3:
-        # If accepted is in March, 4 March (MDY) is valid before Accepted, 3 April (DMY) is after
-        mdy_score += 2
+    # Evaluate chronology against publishing milestones (Received <= Milestone)
+    for milestone in milestone_dates:
+        for a, b, y in ambiguous_numeric_dates:
+            try:
+                dmy_dt = datetime.date(y, b, a)
+                mdy_dt = datetime.date(y, a, b)
+                # If DMY places Received AFTER milestone but MDY is on/before milestone
+                if dmy_dt > milestone and mdy_dt <= milestone:
+                    mdy_score += 3
+                # If MDY places Received AFTER milestone but DMY is on/before milestone
+                elif mdy_dt > milestone and dmy_dt <= milestone:
+                    dmy_score += 3
+            except ValueError:
+                pass
 
     if mdy_score > dmy_score and mdy_score > 0:
         return "MDY"

@@ -236,7 +236,7 @@ def parse_date(raw_text: str, policy: str | None = None) -> str:
                 DateErrorReason.AMBIGUOUS,
                 f"Numeric date '{raw_text}' is ambiguous between DD/MM and MM/DD",
             )
-        elif effective_policy == "DMY":
+        elif effective_policy in ("DMY", "INFER_DOCUMENT_CONTEXT"):
             return dmy_date.isoformat()
         elif effective_policy == "MDY":
             return mdy_date.isoformat()
